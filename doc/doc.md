@@ -101,9 +101,44 @@ sudo apt install php-mbstring
 php composer.phar create-project --prefer-dist cakephp/app:5 cms
 ```
 
+## Reinstall CakePHP 5
+
+```bash
+php composer.phar install --working-dir="cms"
+```
+
+## Add DataBase-config
+
+In the `cms/config/app_local.php`:
+
+```php
+<?php
+// ...
+return [
+    // ...
+    'Datasources' => [
+        'default' => [
+            'host' => 'localhost',
+
+            'username' => 'testUser',
+            'password' => 'pass123',
+
+            'database' => 'testDB',
+            
+            'url' => env('DATABASE_URL', null),
+        ],
+        // ...
+    ],
+    // ...
+];
+
+```
+
+
 ## Run dev-server
 
 ```bash
 cd cms
 bin/cake server
+# bin/cake server --help
 ```
