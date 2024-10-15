@@ -31,8 +31,8 @@ class User extends Entity
      */
     protected array $_accessible = [
         'username' => true,
-        'password' => true,
-        'token' => true,
+        // 'password' => true,
+        // 'token' => true,
         // 'isAdmin' => true,
         'created' => true,
         'modified' => true,

@@ -11,6 +11,7 @@
             <?= $this->Html->link(__('View User'), ['action' => 'view', $user->id], ['class' => 'side-nav-item']) ?>
             <?= $this->Html->link(__('Edit Password'), ['action' => 'editPassword', $user->id], ['class' => 'side-nav-item']) ?>
             <?= $this->Html->link(__('Edit Token'), ['action' => 'editToken', $user->id], ['class' => 'side-nav-item']) ?>
+            <?= $this->Html->link(__('Edit Permissions'), ['action' => 'editPermissions', $user->id], ['class' => 'side-nav-item']) ?>
             <?= $this->Form->postLink(
                 __('Delete'),
                 ['action' => 'delete', $user->id],

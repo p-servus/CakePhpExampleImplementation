@@ -41,6 +41,17 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
         <div class="top-nav-links">
             <a target="_blank" rel="noopener" href="https://book.cakephp.org/5/">Documentation</a>
             <a target="_blank" rel="noopener" href="https://api.cakephp.org/">API</a>
+            <?php
+                $this->loadHelper('Authentication.Identity');
+                if ($this->Identity->isLoggedIn()) {
+                    $username = $this->Identity->get('username');
+                    $userId = $this->Identity->get('id');
+            ?>
+            <?= $this->Html->link(__('View own User "{0}"', $username), ['controller' => 'Users', 'action' => 'view', $userId], ['class' => 'top-nav-item']) ?>
+            <?= $this->Html->link(__('logout'), ['controller' => 'Users', 'action' => 'logout'], ['class' => 'top-nav-item']) ?>
+            <?php
+                }
+            ?>
         </div>
     </nav>
     <main class="main">
