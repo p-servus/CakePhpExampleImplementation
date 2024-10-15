@@ -1,12 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
+use App\Controller\AppController;
 use App\Model\Entity\User;
 use Authentication\Controller\Component\AuthenticationComponent;
 use Authorization\Controller\Component\AuthorizationComponent;
 use Cake\Utility\Security;
+use Cake\View\JsonView;
 
 /**
  * Users Controller
@@ -24,6 +26,11 @@ class UsersController extends AppController
             'Users.id' => 'asc',
         ],
     ];
+
+    public function viewClasses(): array
+    {
+        return [JsonView::class];
+    }
 
     public function beforeFilter(\Cake\Event\EventInterface $event)
     {
@@ -80,10 +87,12 @@ class UsersController extends AppController
     {
         $this->Authorization->skipAuthorization();
 
-        $query = $this->Users->find();
-        $users = $this->paginate($query);
-
+        $query = $this->Users->find('all');
+        $users = $query->all();
+        //TODO: pagination for the API?
+        // $users = $this->paginate($query);
         $this->set(compact('users'));
+        $this->viewBuilder()->setOption('serialize', ['users']);
     }
 
     /**
@@ -95,9 +104,14 @@ class UsersController extends AppController
      */
     public function view($id = null)
     {
-        $user = $this->Users->get($id, contain: []);
+        // $user = $this->Users->get($id, contain: []);
+        // $this->Authorization->authorize($user);
+        // $this->set(compact('user'));
+
+        $user = $this->Users->get($id);
         $this->Authorization->authorize($user);
         $this->set(compact('user'));
+        $this->viewBuilder()->setOption('serialize', ['user']);
     }
 
     /**

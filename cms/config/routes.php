@@ -93,4 +93,12 @@ return function (RouteBuilder $routes): void {
      * });
      * ```
      */
+
+    $routes->scope('/api', function (RouteBuilder $routes): void {
+        $routes->setExtensions(['json']);
+        $routes->resources('Users', [
+            'prefix' => 'Api',
+        ]);
+        // $routes->fallbacks();
+    });
 };

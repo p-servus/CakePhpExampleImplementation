@@ -126,6 +126,34 @@ class Application extends BaseApplication
 
     public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
     {
+        $path = $request->getUri()->getPath();
+
+        if (strpos($path, '/api') === 0) {
+            $service = new AuthenticationService();
+            // Accept API tokens only
+            // $service->loadAuthenticator('Authentication.Token');
+            $service->loadAuthenticator('Authentication.Token', [
+                'queryParam' => 'token',
+                'header' => 'Authorization',
+                'tokenPrefix' => 'Token',
+            ]);
+            
+            // $service->loadIdentifier('Authentication.Token');
+            $service->loadIdentifier('Authentication.Token', [
+                'hashAlgorithm' => 'sha256',
+                // 'tokenField' => 'token',
+                // 'dataField' => 'token',
+                // 'resolver' => [
+                //     'className' => 'Authentication.Orm',
+                //     'userModel' => 'Users',
+                //     'finder' => 'all',
+                // ],
+            ]);
+    
+            return $service;
+        }
+
+
         $authenticationService = new AuthenticationService([
             'unauthenticatedRedirect' => Router::url('/users/login'),
             'queryParam' => 'redirect',
