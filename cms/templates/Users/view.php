@@ -29,6 +29,10 @@
                     <td><?= $this->Number->format($user->id) ?></td>
                 </tr>
                 <tr>
+                    <th><?= __('Is Admin') ?></th>
+                    <td><?= $user->isAdmin ? __('Yes') : __('No') ?></td>
+                </tr>
+                <tr>
                     <th><?= __('Created') ?></th>
                     <td><?= h($user->created) ?></td>
                 </tr>
