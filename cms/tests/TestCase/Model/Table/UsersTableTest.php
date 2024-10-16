@@ -51,25 +51,190 @@ class UsersTableTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Test validationDefault method
-     *
-     * @return void
-     * @uses \App\Model\Table\UsersTable::validationDefault()
-     */
-    public function testValidationDefault(): void
+    public function testCanSaveApplicant(): void
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $user = $this->Users->newEntity([
+            'username' => 'jane-doe',
+            'password' => 'password123',
+            'token' => '1234',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result = $this->Users->save($user);
+        $expected = $user;
+
+        $this->assertEquals($expected, $result);
     }
 
-    /**
-     * Test buildRules method
-     *
-     * @return void
-     * @uses \App\Model\Table\UsersTable::buildRules()
-     */
-    public function testBuildRules(): void
+    public function testCanNotSaveTwoUsersWithSameUsername(): void
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $username = 'same-username';
+
+        $user_1 = $this->Users->newEntity([
+            'username' => $username,
+            'password' => 'password123',
+            'token' => '1234',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $user_2 = $this->Users->newEntity([
+            'username' => $username,
+            'password' => 'password456',
+            'token' => '5678',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result_1 = $this->Users->save($user_1);
+        $expected_1 = $user_1;
+
+        $result_2 = $this->Users->save($user_2);
+        $expected_2 = false;
+
+        $this->assertEquals($expected_1, $result_1);
+        $this->assertEquals($expected_2, $result_2);
+    }
+
+    public function testCanNotSaveUserWithoutUsername(): void
+    {
+        $user = $this->Users->newEntity([
+            // 'username' => 'jane-doe',
+            'password' => 'password123',
+            'token' => '1234',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result = $this->Users->save($user);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveUserWithoutPassword(): void
+    {
+        $user = $this->Users->newEntity([
+            'username' => 'jane-doe',
+            // 'password' => 'password123',
+            'token' => '1234',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result = $this->Users->save($user);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveUserWithoutToken(): void
+    {
+        $user = $this->Users->newEntity([
+            'username' => 'jane-doe',
+            'password' => 'password123',
+            // 'token' => '1234',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result = $this->Users->save($user);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveUserWithEmptyUsername(): void
+    {
+        $user = $this->Users->newEntity([
+            'username' => '',
+            'password' => 'password123',
+            'token' => '1234',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result = $this->Users->save($user);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveUserWithEmptyPassword(): void
+    {
+        $user = $this->Users->newEntity([
+            'username' => 'jane-doe',
+            'password' => '',
+            'token' => '1234',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result = $this->Users->save($user);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveUserWithEmptyToken(): void
+    {
+        $user = $this->Users->newEntity([
+            'username' => 'jane-doe',
+            'password' => 'password123',
+            'token' => '',
+        ], [
+            // Enable modification of password.
+            // Enable modification of token.
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+            ],
+        ]);
+
+        $result = $this->Users->save($user);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
     }
 }

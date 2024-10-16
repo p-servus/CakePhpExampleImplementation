@@ -39,26 +39,68 @@ class JobAdvertisementsTableTest extends TestCase
         $this->JobAdvertisements = $this->getTableLocator()->get('JobAdvertisements', $config);
     }
 
-    /**
-     * tearDown method
-     *
-     * @return void
-     */
-    protected function tearDown(): void
+    public function testCanSaveJobAdvertisement(): void
     {
-        unset($this->JobAdvertisements);
+        $jobAdvertisement = $this->JobAdvertisements->newEntity([
+            'title' => 'SoftwareDeveloper',
+            'description' => 'Programming PHP!',
+        ]);
 
-        parent::tearDown();
+        $result = $this->JobAdvertisements->save($jobAdvertisement);
+        $expected = $jobAdvertisement;
+
+        $this->assertEquals($expected, $result);
     }
 
-    /**
-     * Test validationDefault method
-     *
-     * @return void
-     * @uses \App\Model\Table\JobAdvertisementsTable::validationDefault()
-     */
-    public function testValidationDefault(): void
+    public function testCanNotSaveJobAdvertisementWithoutTitle(): void
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $jobAdvertisement = $this->JobAdvertisements->newEntity([
+            // 'title' => 'SoftwareDeveloper',
+            'description' => 'Programming PHP!',
+        ]);
+
+        $result = $this->JobAdvertisements->save($jobAdvertisement);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveJobAdvertisementWithoutDescription(): void
+    {
+        $jobAdvertisement = $this->JobAdvertisements->newEntity([
+            'title' => 'SoftwareDeveloper',
+            // 'description' => 'Programming PHP!',
+        ]);
+
+        $result = $this->JobAdvertisements->save($jobAdvertisement);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveJobAdvertisementWithEmptyTitle(): void
+    {
+        $jobAdvertisement = $this->JobAdvertisements->newEntity([
+            'title' => '',
+            'description' => 'Programming PHP!',
+        ]);
+
+        $result = $this->JobAdvertisements->save($jobAdvertisement);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanNotSaveJobAdvertisementWithEmptyDescription(): void
+    {
+        $jobAdvertisement = $this->JobAdvertisements->newEntity([
+            'title' => 'SoftwareDeveloper',
+            'description' => '',
+        ]);
+
+        $result = $this->JobAdvertisements->save($jobAdvertisement);
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
     }
 }
