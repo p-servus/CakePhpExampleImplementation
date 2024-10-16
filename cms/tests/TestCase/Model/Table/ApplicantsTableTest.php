@@ -221,6 +221,7 @@ class ApplicantsTableTest extends TestCase
             // 'jane-doe@bla.com',
             'jane-doebla.com',
             'jane-doe@blacom',
+            'jane.doe@blacom',
         ];
 
         foreach ($invalidEmails as $invalidEmail) {
@@ -234,7 +235,7 @@ class ApplicantsTableTest extends TestCase
             $result = $this->Applicants->save($applicant);
             $expected = false;
 
-            $this->assertEquals($expected, $result);
+            $this->assertEquals($expected, $result, 'for invalid email "'.$invalidEmail.'"');
         }
     }
 }
