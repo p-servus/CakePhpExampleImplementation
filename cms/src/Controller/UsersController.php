@@ -253,11 +253,11 @@ class UsersController extends AppController
                 ],
             ]);
             if ($this->Users->save($user)) {
-                $this->Flash->success(__('The password has been saved.'));
+                $this->Flash->success(__('The permissions has been saved.'));
 
                 return $this->redirect(['action' => 'view', $user->id]);
             }
-            $this->Flash->error(__('The password could not be saved. Please, try again.'));
+            $this->Flash->error(__('The permissions could not be saved. Please, try again.'));
         }
         $this->set(compact('user'));
     }

@@ -37,45 +37,7 @@ class UsersController extends AppController
         parent::beforeFilter($event);
         // Configure the login action to not require authentication, preventing
         // the infinite redirect loop issue
-        $this->Authentication->addUnauthenticatedActions(['login', 'add']);
-    }
-    
-    public function login()
-    {
-        $this->Authorization->skipAuthorization();
-
-        $this->request->allowMethod(['get', 'post']);
-        $result = $this->Authentication->getResult();
-        // regardless of POST or GET, redirect if user is logged in
-        if ($result && $result->isValid()) {
-            $userId = $this->Authentication->getIdentity()->getIdentifier();
-            
-            // redirect to /job-advertisements after login success
-            $redirect = $this->request->getQuery('redirect', [
-                'controller' => 'Users',
-                'action' => 'view',
-                $userId,
-            ]);
-    
-            return $this->redirect($redirect);
-        }
-        // display error if user submitted and authentication failed
-        if ($this->request->is('post') && !$result->isValid()) {
-            $this->Flash->error(__('Invalid username or password'));
-        }
-    }
-
-    public function logout()
-    {
-        $this->Authorization->skipAuthorization();
-        
-        $result = $this->Authentication->getResult();
-        // regardless of POST or GET, redirect if user is logged in
-        if ($result && $result->isValid()) {
-            $this->Authentication->logout();
-
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
-        }
+        $this->Authentication->addUnauthenticatedActions(['add']);
     }
 
     /**
@@ -104,10 +66,6 @@ class UsersController extends AppController
      */
     public function view($id = null)
     {
-        // $user = $this->Users->get($id, contain: []);
-        // $this->Authorization->authorize($user);
-        // $this->set(compact('user'));
-
         $user = $this->Users->get($id);
         $this->Authorization->authorize($user);
         $this->set(compact('user'));
@@ -121,33 +79,37 @@ class UsersController extends AppController
      */
     public function add()
     {
+        $this->request->allowMethod(['post', 'put']);
+        
         $this->Authorization->skipAuthorization();
         
-        $user = $this->Users->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                // Enable modification of password.
-                // Enable modification of token.
-                // Disable modification of isAdmin. (defauts to false)
-                'accessibleFields' => [
-                    'password' => true,
-                    'token'    => true,
-                    'isAdmin'  => false,
-                ],
-            ]);
+        $user = $this->Users->newEntity($this->request->getData(), [
+            // Enable modification of password.
+            // Enable modification of token.
+            // Disable modification of isAdmin. (defauts to false)
+            'accessibleFields' => [
+                'password' => true,
+                'token'    => true,
+                'isAdmin'  => false,
+            ],
+        ]);
 
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
+        $newToken = User::NewToken();
+        $user->token = $newToken;
 
-                return $this->redirect(['action' => 'view', $user->id]);
-            }
-            
+        if ($this->Users->save($user)) {
+            $status  = 'OK';
+            $message = 'The user has been saved.';
+        } else {
+            $user = null;
             $newToken = null;
 
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+            $status  = 'Error';
+            $message = 'The user could not be saved. Please, try again.';
         }
-        $newToken = User::NewToken();
-        $this->set(compact('user', 'newToken'));
+
+        $this->set(compact('user', 'newToken', 'status', 'message'));
+        $this->viewBuilder()->setOption('serialize', ['user', 'newToken', 'status', 'message']);
     }
 
     /**
@@ -159,27 +121,35 @@ class UsersController extends AppController
      */
     public function edit($id = null)
     {
-        $user = $this->Users->get($id, contain: []);
-        $this->Authorization->authorize($user);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                // Disable modification of password.
-                // Disable modification of token.
-                // Disable modification of isAdmin.
-                'accessibleFields' => [
-                    'password' => false,
-                    'token'    => false,
-                    'isAdmin'  => false,
-                ],
-            ]);
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
+        $this->request->allowMethod(['patch', 'post', 'put']);
 
-                return $this->redirect(['action' => 'view', $user->id]);
-            }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+        $user = $this->Users->get($id, contain: []);
+
+        $this->Authorization->authorize($user);
+        
+        $user = $this->Users->patchEntity($user, $this->request->getData(), [
+            // Disable modification of password.
+            // Disable modification of token.
+            // Disable modification of isAdmin.
+            'accessibleFields' => [
+                'password' => false,
+                'token'    => false,
+                'isAdmin'  => false,
+            ],
+        ]);
+
+        if ($this->Users->save($user)) {
+            $status  = 'OK';
+            $message = 'The user has been saved.';
+        } else {
+            $user = null;
+
+            $status  = 'Error';
+            $message = 'The user could not be saved. Please, try again.';
         }
-        $this->set(compact('user'));
+
+        $this->set(compact('user', 'status', 'message'));
+        $this->viewBuilder()->setOption('serialize', ['user', 'status', 'message']);
     }
 
     /**
@@ -191,26 +161,34 @@ class UsersController extends AppController
      */
     public function editPassword($id = null)
     {
-        $user = $this->Users->get($id, contain: []);
-        $this->Authorization->authorize($user);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                // Whitelist only modification of password.
-                'fieldList' => [
-                    'password',
-                ],
-                'accessibleFields' => [
-                    'password' => true,
-                ],
-            ]);
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The password has been saved.'));
+        $this->request->allowMethod(['patch', 'post', 'put']);
 
-                return $this->redirect(['action' => 'view', $user->id]);
-            }
-            $this->Flash->error(__('The password could not be saved. Please, try again.'));
+        $user = $this->Users->get($id, contain: []);
+
+        $this->Authorization->authorize($user);
+        
+        $user = $this->Users->patchEntity($user, $this->request->getData(), [
+            // Whitelist only modification of password.
+            'fieldList' => [
+                'password',
+            ],
+            'accessibleFields' => [
+                'password' => true,
+            ],
+        ]);
+
+        if ($this->Users->save($user)) {
+            $status  = 'OK';
+            $message = 'The password has been saved.';
+        } else {
+            $user = null;
+
+            $status  = 'Error';
+            $message = 'The password could not be saved. Please, try again.';
         }
-        $this->set(compact('user'));
+
+        $this->set(compact('status', 'message'));
+        $this->viewBuilder()->setOption('serialize', ['status', 'message']);
     }
 
     /**
@@ -222,27 +200,40 @@ class UsersController extends AppController
      */
     public function editToken($id = null)
     {
-        $user = $this->Users->get($id, contain: []);
-        $this->Authorization->authorize($user);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                // Whitelist only modification of token.
-                'fieldList' => [
-                    'token',
-                ],
-                'accessibleFields' => [
-                    'token' => true,
-                ],
-            ]);
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The token has been saved.'));
+        $this->request->allowMethod(['patch', 'post', 'put']);
 
-                return $this->redirect(['action' => 'view', $user->id]);
-            }
-            $this->Flash->error(__('The token could not be saved. Please, try again.'));
-        }
+        $user = $this->Users->get($id, contain: []);
+
+        $this->Authorization->authorize($user);
+        
+        $user = $this->Users->patchEntity($user, $this->request->getData(), [
+            // Whitelist only modification of token.
+            'fieldList' => [
+                'token',
+            ],
+            'accessibleFields' => [
+                'token' => true,
+            ],
+        ]);
+
         $newToken = User::NewToken();
-        $this->set(compact('user', 'newToken'));
+        $hint     = 'Please store this token in a safe location!!! Because of security reasons, only a hash of it will be stored here! If you lost the token, you have to create a new one!';
+        $user->token = $newToken;
+
+        if ($this->Users->save($user)) {
+            $status  = 'OK';
+            $message = 'The token has been saved.';
+        } else {
+            $user     = null;
+            $newToken = null;
+            $hint     = null;
+
+            $status  = 'Error';
+            $message = 'The token could not be saved. Please, try again.';
+        }
+
+        $this->set(compact('newToken', 'hint', 'status', 'message'));
+        $this->viewBuilder()->setOption('serialize', ['newToken', 'hint', 'status', 'message']);
     }
 
     /**
@@ -254,26 +245,34 @@ class UsersController extends AppController
      */
     public function editPermissions($id = null)
     {
-        $user = $this->Users->get($id, contain: []);
-        $this->Authorization->authorize($user);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                // Whitelist only modification of isAdmin.
-                'fieldList' => [
-                    'isAdmin',
-                ],
-                'accessibleFields' => [
-                    'isAdmin' => true,
-                ],
-            ]);
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The password has been saved.'));
+        $this->request->allowMethod(['patch', 'post', 'put']);
 
-                return $this->redirect(['action' => 'view', $user->id]);
-            }
-            $this->Flash->error(__('The password could not be saved. Please, try again.'));
+        $user = $this->Users->get($id, contain: []);
+
+        $this->Authorization->authorize($user);
+        
+        $user = $this->Users->patchEntity($user, $this->request->getData(), [
+            // Whitelist only modification of isAdmin.
+            'fieldList' => [
+                'isAdmin',
+            ],
+            'accessibleFields' => [
+                'isAdmin' => true,
+            ],
+        ]);
+
+        if ($this->Users->save($user)) {
+            $status  = 'OK';
+            $message = 'The permissions has been saved.';
+        } else {
+            $user = null;
+
+            $status  = 'Error';
+            $message = 'The permissions could not be saved. Please, try again.';
         }
-        $this->set(compact('user'));
+
+        $this->set(compact('user', 'status', 'message'));
+        $this->viewBuilder()->setOption('serialize', ['user', 'status', 'message']);
     }
 
     /**
@@ -285,15 +284,23 @@ class UsersController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
+        $this->request->allowMethod(['delete']);
+
         $user = $this->Users->get($id);
+
         $this->Authorization->authorize($user);
+
         if ($this->Users->delete($user)) {
-            $this->Flash->success(__('The user has been deleted.'));
+            $status  = 'OK';
+            $message = 'The user has been deleted.';
         } else {
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+            $user = null;
+
+            $status  = 'Error';
+            $message = 'The user could not be deleted. Please, try again.';
         }
 
-        return $this->redirect(['action' => 'index']);
+        $this->set(compact('status', 'message'));
+        $this->viewBuilder()->setOption('serialize', ['status', 'message']);
     }
 }

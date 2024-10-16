@@ -98,6 +98,23 @@ return function (RouteBuilder $routes): void {
         $routes->setExtensions(['json']);
         $routes->resources('Users', [
             'prefix' => 'Api',
+            'map' => [
+                'editPassword' => [
+                    'action' => 'editPassword',
+                    'method' => ['POST', 'PUT', 'PATCH'],
+                    'path' => '/edit-password/{id}',
+                ],
+                'editToken' => [
+                    'action' => 'editToken',
+                    'method' => ['POST', 'PUT', 'PATCH'],
+                    'path' => '/edit-token/{id}',
+                ],
+                'editPermissions' => [
+                    'action' => 'editPermissions',
+                    'method' => ['POST', 'PUT', 'PATCH'],
+                    'path' => '/edit-permissions/{id}',
+                ],
+            ]
         ]);
         // $routes->fallbacks();
     });

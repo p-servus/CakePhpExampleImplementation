@@ -113,11 +113,11 @@ class Application extends BaseApplication
             // https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
             ->add(new BodyParserMiddleware())
 
-            // Cross Site Request Forgery (CSRF) Protection Middleware
-            // https://book.cakephp.org/4/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
-            ->add(new CsrfProtectionMiddleware([
-                'httponly' => true,
-            ]))
+            // // Cross Site Request Forgery (CSRF) Protection Middleware
+            // // https://book.cakephp.org/4/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
+            // ->add(new CsrfProtectionMiddleware([
+            //     'httponly' => true,
+            // ]))
             ->add(new AuthenticationMiddleware($this))
             ->add(new AuthorizationMiddleware($this));
 
