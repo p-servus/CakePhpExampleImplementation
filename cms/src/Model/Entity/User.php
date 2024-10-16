@@ -52,19 +52,12 @@ class User extends Entity
 
     protected function _setPassword(string $password) : ?string
     {
-        if (strlen($password) > 0) {
-            return (new DefaultPasswordHasher())->hash($password);
-        }
-        return null;
+        return self::HashPassword($password);
     }
 
     protected function _setToken(string $token) : ?string
     {
-        if (strlen($token) > 0) {
-            // hashing tokens needs no salt, bekause tokes has to be lage and random strings
-            return Security::hash($token, 'sha256', false);
-        }
-        return null;
+        return self::HashToken($token);
     }
 
     static public function NewToken(): string {
@@ -73,5 +66,22 @@ class User extends Entity
         $newToken = Security::randomString(32*2);
 
         return $newToken;
+    }
+
+    static public function HashPassword(string $password) : ?string
+    {
+        if (strlen($password) > 0) {
+            return (new DefaultPasswordHasher())->hash($password);
+        }
+        return null;
+    }
+
+    static public function HashToken(string $token) : ?string
+    {
+        if (strlen($token) > 0) {
+            // hashing tokens needs no salt, bekause tokes has to be lage and random strings
+            return Security::hash($token, 'sha256', false);
+        }
+        return null;
     }
 }

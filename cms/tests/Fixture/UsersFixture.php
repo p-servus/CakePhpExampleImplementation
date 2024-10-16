@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Test\Fixture;
 
+use App\Model\Entity\User;
 use Cake\TestSuite\Fixture\TestFixture;
 
 /**
@@ -20,9 +21,12 @@ class UsersFixture extends TestFixture
         $this->records = [
             [
                 'id' => 1,
-                'username' => 'Lorem ipsum dolor sit amet',
-                'password' => 'Lorem ipsum dolor sit amet',
-                'token' => 'Lorem ipsum dolor sit amet',
+                'username' => 'admin',
+                'password' => User::HashPassword('admin-password-123'),
+                'token' => User::HashToken('admin-token-123'),
+                'isAdmin' => true,
+                'canViewApplicants' => true,
+                'canEditApplicants' => true,
                 'created' => '2024-10-14 14:23:23',
                 'modified' => '2024-10-14 14:23:23',
             ],
