@@ -34,6 +34,8 @@ class User extends Entity
         // 'password' => true,
         // 'token' => true,
         // 'isAdmin' => true,
+        // 'canViewApplicants' => true,
+        // 'canEditApplicants' => true,
         'created' => true,
         'modified' => true,
     ];

@@ -34,6 +34,14 @@
                     <td><?= $user->isAdmin ? __('Yes') : __('No') ?></td>
                 </tr>
                 <tr>
+                    <th><?= __('Can view Applicants') ?></th>
+                    <td><?= $user->canViewApplicants ? __('Yes') : __('No') ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Can edit Applicants') ?></th>
+                    <td><?= $user->canEditApplicants ? __('Yes') : __('No') ?></td>
+                </tr>
+                <tr>
                     <th><?= __('Created') ?></th>
                     <td><?= h($user->created) ?></td>
                 </tr>

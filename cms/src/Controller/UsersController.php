@@ -115,10 +115,14 @@ class UsersController extends AppController
                 // Enable modification of password.
                 // Enable modification of token.
                 // Disable modification of isAdmin. (defauts to false)
+                // Disable modification of canViewApplicants. (defauts to false)
+                // Disable modification of canEditApplicants. (defauts to false)
                 'accessibleFields' => [
                     'password' => true,
                     'token'    => true,
                     'isAdmin'  => false,
+                    'canViewApplicants' => false,
+                    'canEditApplicants' => false,
                 ],
             ]);
 
@@ -152,10 +156,14 @@ class UsersController extends AppController
                 // Disable modification of password.
                 // Disable modification of token.
                 // Disable modification of isAdmin.
+                // Disable modification of canViewApplicants.
+                // Disable modification of canEditApplicants.
                 'accessibleFields' => [
                     'password' => false,
                     'token'    => false,
                     'isAdmin'  => false,
+                    'canViewApplicants' => false,
+                    'canEditApplicants' => false,
                 ],
             ]);
             if ($this->Users->save($user)) {
@@ -245,11 +253,17 @@ class UsersController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $user = $this->Users->patchEntity($user, $this->request->getData(), [
                 // Whitelist only modification of isAdmin.
+                // Whitelist only modification of canViewApplicants.
+                // Whitelist only modification of canEditApplicants.
                 'fieldList' => [
                     'isAdmin',
+                    'canViewApplicants',
+                    'canEditApplicants',
                 ],
                 'accessibleFields' => [
                     'isAdmin' => true,
+                    'canViewApplicants' => true,
+                    'canEditApplicants' => true,
                 ],
             ]);
             if ($this->Users->save($user)) {

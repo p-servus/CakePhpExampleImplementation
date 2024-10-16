@@ -20,6 +20,12 @@
                 <?php
                     echo $this->Form->control('isAdmin');
                 ?>
+                <?php
+                    echo $this->Form->control('canViewApplicants');
+                ?>
+                <?php
+                    echo $this->Form->control('canEditApplicants');
+                ?>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>
             <?= $this->Form->end() ?>
