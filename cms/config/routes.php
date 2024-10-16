@@ -96,6 +96,7 @@ return function (RouteBuilder $routes): void {
 
     $routes->scope('/api', function (RouteBuilder $routes): void {
         $routes->setExtensions(['json']);
+        
         $routes->resources('Users', [
             'prefix' => 'Api',
             'map' => [
@@ -114,8 +115,13 @@ return function (RouteBuilder $routes): void {
                     'method' => ['POST', 'PUT', 'PATCH'],
                     'path' => '/edit-permissions/{id}',
                 ],
-            ]
+            ],
         ]);
+
+        $routes->resources('Applicants', [
+            'prefix' => 'Api',
+        ]);
+
         // $routes->fallbacks();
     });
 };

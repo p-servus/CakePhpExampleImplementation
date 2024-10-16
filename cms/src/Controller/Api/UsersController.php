@@ -35,8 +35,7 @@ class UsersController extends AppController
     public function beforeFilter(\Cake\Event\EventInterface $event)
     {
         parent::beforeFilter($event);
-        // Configure the login action to not require authentication, preventing
-        // the infinite redirect loop issue
+        
         $this->Authentication->addUnauthenticatedActions(['add']);
     }
 
@@ -51,8 +50,10 @@ class UsersController extends AppController
 
         $query = $this->Users->find('all');
         $users = $query->all();
+
         //TODO: pagination for the API?
         // $users = $this->paginate($query);
+
         $this->set(compact('users'));
         $this->viewBuilder()->setOption('serialize', ['users']);
     }
@@ -67,7 +68,9 @@ class UsersController extends AppController
     public function view($id = null)
     {
         $user = $this->Users->get($id);
+        
         $this->Authorization->authorize($user);
+
         $this->set(compact('user'));
         $this->viewBuilder()->setOption('serialize', ['user']);
     }
