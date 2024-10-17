@@ -13,22 +13,28 @@ class AddAdminCommand extends Command
     {
         $username = $io->ask('Enter the new username:');
 
-        $io->out("Enter the new password: ", 0);
-        $password = $this->getInputSilent();
+        $password = $io->ask('Enter the new password:');
+        // $io->out("Enter the new password: ", 0);
+        // $password = $this->getInputSilent();
 
         if ($password === null) {
             $io->error('Failed to read password silent!.');
             return static::CODE_ERROR;
         }
+
+        $newToken = User::NewToken();
+        $hint     = 'Please store this token in a safe location!!! Because of security reasons, only a hash of it will be stored here! If you lost the token, you have to create a new one!';
         
         $usersTable = $this->getTableLocator()->get('Users');
         $user = $usersTable->newEntity([
             'username' => $username,
             'password' => $password,
-            'token'    => User::NewToken(),
+            'token'    => $newToken,
             'isAdmin'  => true,
         ], [
             'accessibleFields' => [
+                'password' => true,
+                'token' => true,
                 'isAdmin' => true,
             ],
         ]);
@@ -39,6 +45,8 @@ class AddAdminCommand extends Command
         }
         
         $io->success('The user has been saved successfully.');
+        $io->success('    The new Token is "'.$newToken.'".');
+        $io->success('    '.$hint);
         return static::CODE_SUCCESS;
     }
 

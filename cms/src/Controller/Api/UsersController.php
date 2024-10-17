@@ -102,6 +102,7 @@ class UsersController extends AppController
         ]);
 
         $newToken = User::NewToken();
+        $hint     = 'Please store this token in a safe location!!! Because of security reasons, only a hash of it will be stored here! If you lost the token, you have to create a new one!';
         $user->token = $newToken;
 
         if ($this->Users->save($user)) {
@@ -115,8 +116,8 @@ class UsersController extends AppController
             $message = 'The user could not be saved. Please, try again.';
         }
 
-        $this->set(compact('user', 'newToken', 'status', 'message'));
-        $this->viewBuilder()->setOption('serialize', ['user', 'newToken', 'status', 'message']);
+        $this->set(compact('user', 'newToken', 'hint', 'status', 'message'));
+        $this->viewBuilder()->setOption('serialize', ['user', 'newToken', 'hint', 'status', 'message']);
     }
 
     /**
