@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\User;
 use App\Model\Table\UsersTable;
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Cake\TestSuite\TestCase;
+use Cake\Utility\Security;
 
 /**
  * App\Model\Table\UsersTable Test Case
@@ -236,5 +239,65 @@ class UsersTableTest extends TestCase
         $expected = false;
 
         $this->assertEquals($expected, $result);
+    }
+
+    public function testCanGenerateANewToken(): void
+    {
+        $token = User::NewToken();
+
+        $this->assertIsString($token);
+        $this->assertNotEquals('', $token);
+    }
+
+    public function testTwoGeneratedTokensAreDifferent(): void
+    {
+        $token_1 = User::NewToken();
+        $token_2 = User::NewToken();
+
+        $this->assertNotEquals($token_1, $token_2);
+    }
+
+    public function testAGeneratedTokenIs64CharactersLong(): void
+    {
+        $token = User::NewToken();
+
+        $this->assertEquals(64, strlen($token));
+    }
+
+    public function testHashingATokenUsesSha256WithoutSalt(): void
+    {
+        $token = User::NewToken();
+        $hash = User::HashToken($token);
+
+        $expected = Security::hash($token, 'sha256', false);
+
+        $this->assertEquals($expected, $hash);
+    }
+
+    public function testHashingAnEmptyTokenReturnsNull(): void
+    {
+        $token = '';
+        $hash = User::HashToken($token);
+
+        $this->assertNull($hash);
+    }
+
+    public function testHashingAPasswordCanBeVerified(): void
+    {
+        
+        $password = 'password';
+        $hash = User::HashPassword($password);
+        
+        $isVerified = (new DefaultPasswordHasher())->check($password, $hash);
+
+        $this->assertTrue($isVerified);
+    }
+
+    public function testHashingAnEmptyPasswordReturnsNull(): void
+    {
+        $password = '';
+        $hash = User::HashPassword($password);
+
+        $this->assertNull($hash);
     }
 }
