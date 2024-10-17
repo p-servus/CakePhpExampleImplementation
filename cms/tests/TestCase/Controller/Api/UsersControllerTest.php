@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Test\TestCase\Controller;
 
 use App\Controller\UsersController;
+use App\Test\Fixture\UsersFixture;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
@@ -16,10 +17,6 @@ class UsersControllerTest extends TestCase
 {
     use IntegrationTestTrait;
 
-    protected $tokens = [
-        'admin' => 'admin-token-123',
-    ];
-
     protected function setToken(string $token) {
         $this->configRequest([
             'headers' => [
@@ -28,8 +25,12 @@ class UsersControllerTest extends TestCase
         ]);
     }
 
-    protected function setTokenForUsername(string $username) {
-        $this->setToken($this->tokens[$username]);
+    protected function setTokenForUsername(?string $username) {
+        if ($username === null) {
+            return;
+        }
+
+        $this->setToken(UsersFixture::$userDataList[$username]['token']);
     }
 
     protected function setContentTypeJson() {
@@ -104,25 +105,97 @@ class UsersControllerTest extends TestCase
         $this->markTestIncomplete('Not implemented yet.');
     }
 
-    public function assertUserCanIndex(string $username): void
+
+
+    public function assertUserCanNotIndex(?string $username): void
     {
         $this->setTokenForUsername($username);
 
         $this->get('/api/users.json');
-        $this->assertResponseSuccess();
-        $this->assertResponseContains('admin');
+        
+        if ($username === null) {
+            $this->assertResponseCode(401);
+        }
+        else {
+            $this->assertResponseCode(403);
+        }
+
+        //TODO: check response
     }
 
-    public function assertUserCanView(string $username): void
+    public function assertUserCanIndex(?string $username): void
     {
         $this->setTokenForUsername($username);
 
-        $this->get('/api/users/1.json');
-        $this->assertResponseSuccess();
-        $this->assertResponseContains('admin');
+        $this->get('/api/users.json');
+
+        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
+        // $this->assertResponseSuccess();
+        $this->assertResponseCode(200);
+
+        $responseData = json_decode((string)$this->_response->getBody(), true);
+        
+        $this->assertResponseContains('a-verry-special-username');
     }
 
-    public function assertUserCanAdd(string $username): void
+    public function assertUserCanNotView(?string $username): void
+    {
+        $this->setTokenForUsername($username);
+
+        $this->get('/api/users/6.json');
+        
+        if ($username === null) {
+            $this->assertResponseCode(401);
+        }
+        else {
+            $this->assertResponseCode(403);
+        }
+        
+        //TODO: check response
+        // the following throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"  
+        // $this->assertResponseNotContains('a-verry-special-username');
+    }
+
+    public function assertUserCanView(?string $username): void
+    {
+        $this->setTokenForUsername($username);
+
+        $this->get('/api/users/6.json');
+        
+        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
+        // $this->assertResponseSuccess();
+        $this->assertResponseCode(200);
+        
+        $this->assertResponseContains('a-verry-special-username');
+    }
+
+    public function assertUserCanNotAdd(?string $username): void
+    {
+        $this->setTokenForUsername($username);
+
+        $user = [
+            'username' => 'jane-doe',
+            'password' => 'password123',
+        ];
+
+        $this->setContentTypeJson();
+
+        $this->post(
+            '/api/users.json',
+            json_encode($user, JSON_PRETTY_PRINT),
+        );
+
+        if ($username === null) {
+            $this->assertResponseCode(401);
+        }
+        else {
+            $this->assertResponseCode(403);
+        }
+
+        //TODO: check response
+    }
+
+    public function assertUserCanAdd(?string $username): void
     {
         $this->setTokenForUsername($username);
 
@@ -153,10 +226,32 @@ class UsersControllerTest extends TestCase
             'message' => 'The user has been saved.',
         ];
 
-        $this->assertResponseSuccess();
+        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
+        // $this->assertResponseSuccess();
+        $this->assertResponseCode(200);
+
         $this->assertEquals($expected, $responseData);
     }
 
+
+    
+    public function testUnauthorisedUserCanNotIndex(): void
+    {
+        $this->assertUserCanNotIndex(null);
+    }
+
+    public function testUnauthorisedUserCanNotView(): void
+    {
+        $this->assertUserCanNotView(null);
+    }
+
+    public function testUnauthorisedUserCanAddBecauseEveryoneCanAddAUserToRegister(): void
+    {
+        $this->assertUserCanAdd(null);
+    }
+
+
+    
     public function testAdminCanIndex(): void
     {
         $this->assertUserCanIndex('admin');
@@ -170,5 +265,22 @@ class UsersControllerTest extends TestCase
     public function testAdminCanAdd(): void
     {
         $this->assertUserCanAdd('admin');
+    }
+
+
+    
+    public function testUserWithNoPermissionsCanIndex(): void
+    {
+        $this->assertUserCanIndex('user-with-noPermissions');
+    }
+
+    public function testUserWithNoPermissionsCanNotView(): void
+    {
+        $this->assertUserCanNotView('user-with-noPermissions');
+    }
+
+    public function testUserWithNoPermissionsCanAddBecauseEveryoneCanAddAUserToRegister(): void
+    {
+        $this->assertUserCanAdd('user-with-noPermissions');
     }
 }
