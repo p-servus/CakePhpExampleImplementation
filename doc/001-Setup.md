@@ -14,15 +14,21 @@ apt install mysql-server
 
 ## Create database and user
 
+Run the mysql-client:
+
 ```bash
 sudo mysql
 ```
+
+Create a new database `testDB`:
 
 ```sql
 CREATE DATABASE testDB;
 SHOW DATABASES;
 exit
 ```
+
+Back in the bash, add this helper-function to the bash, to add users and set the password in a secure way:
 
 ```bash
 # see: https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql
@@ -47,14 +53,20 @@ createMysqlUser() {
 }
 ```
 
+Create the user:
+
 ```bash
 # add user "testUser" with "pass123"
 createMysqlUser
 ```
 
+Run the mysql-client again:
+
 ```bash
 sudo mysql
 ```
+
+Add permissions for the new user:
 
 ```sql
 SELECT user FROM mysql.user;
@@ -97,11 +109,17 @@ sudo apt install php-mbstring
 
 ## Install CakePHP 5
 
+You do not need this step, because i already done it. It only shows, how i setup the CakePHP project.
+
+I install CakePHP 5 in the subdirectory `cms`:
+
 ```bash
 php composer.phar create-project --prefer-dist cakephp/app:5 cms
 ```
 
 ## Reinstall CakePHP 5
+
+If you cloned this Project, you have to reinstall the CakePHP-project in the subdirectory `cms`:
 
 ```bash
 php composer.phar install --working-dir="cms"
@@ -109,7 +127,7 @@ php composer.phar install --working-dir="cms"
 
 ## Add DataBase-config
 
-In the `cms/config/app_local.php`:
+In the `cms/config/app_local.php` (change the data according to your database-setup):
 
 ```php
 <?php
@@ -134,8 +152,18 @@ return [
 
 ```
 
+Then migrate the database:
+
+```bash
+cd cms
+bin/cake migrations migrate
+```
 
 ## Run dev-server
+
+Now you can run the dev-server from CakePHP.
+
+**HINT:** This is not a production-server!
 
 ```bash
 cd cms
