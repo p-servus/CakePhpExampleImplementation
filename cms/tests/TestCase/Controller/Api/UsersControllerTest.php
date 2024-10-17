@@ -16,6 +16,10 @@ class UsersControllerTest extends TestCase
 {
     use IntegrationTestTrait;
 
+    protected $tokens = [
+        'admin' => 'admin-token-123',
+    ];
+
     protected function setToken(string $token) {
         $this->configRequest([
             'headers' => [
@@ -23,8 +27,9 @@ class UsersControllerTest extends TestCase
             ],
         ]);
     }
-    protected function setTokenForAdmin() {
-        $this->setToken('admin-token-123');
+
+    protected function setTokenForUsername(string $username) {
+        $this->setToken($this->tokens[$username]);
     }
 
     protected function setContentTypeJson() {
@@ -99,27 +104,27 @@ class UsersControllerTest extends TestCase
         $this->markTestIncomplete('Not implemented yet.');
     }
 
-    public function testAdminCanIndex(): void
+    public function assertUserCanIndex(string $username): void
     {
-        $this->setTokenForAdmin();
+        $this->setTokenForUsername($username);
 
         $this->get('/api/users.json');
         $this->assertResponseSuccess();
         $this->assertResponseContains('admin');
     }
 
-    public function testAdminCanView(): void
+    public function assertUserCanView(string $username): void
     {
-        $this->setTokenForAdmin();
+        $this->setTokenForUsername($username);
 
         $this->get('/api/users/1.json');
         $this->assertResponseSuccess();
         $this->assertResponseContains('admin');
     }
 
-    public function testAdminCanAdd(): void
+    public function assertUserCanAdd(string $username): void
     {
-        $this->setTokenForAdmin();
+        $this->setTokenForUsername($username);
 
         $user = [
             'username' => 'jane-doe',
@@ -132,8 +137,6 @@ class UsersControllerTest extends TestCase
             '/api/users.json',
             json_encode($user, JSON_PRETTY_PRINT),
         );
-        $this->assertResponseSuccess();
-        $this->assertResponseContains('OK');
         
         $responseData = json_decode((string)$this->_response->getBody(), true);
 
@@ -150,6 +153,22 @@ class UsersControllerTest extends TestCase
             'message' => 'The user has been saved.',
         ];
 
+        $this->assertResponseSuccess();
         $this->assertEquals($expected, $responseData);
+    }
+
+    public function testAdminCanIndex(): void
+    {
+        $this->assertUserCanIndex('admin');
+    }
+
+    public function testAdminCanView(): void
+    {
+        $this->assertUserCanView('admin');
+    }
+
+    public function testAdminCanAdd(): void
+    {
+        $this->assertUserCanAdd('admin');
     }
 }
