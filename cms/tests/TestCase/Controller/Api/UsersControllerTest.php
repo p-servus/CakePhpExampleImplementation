@@ -142,7 +142,7 @@ class UsersControllerTest extends TestCase
                 'username' => 'jane-doe',
                 'created' => $responseData['user']['created'],
                 'modified' => $responseData['user']['created'],
-                'id' => 2,
+                'id' => $responseData['user']['id'],
             ],
             'newToken' => $responseData['newToken'],
             'hint' => 'Please store this token in a safe location!!! Because of security reasons, only a hash of it will be stored here! If you lost the token, you have to create a new one!',
