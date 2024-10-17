@@ -86,6 +86,7 @@ You can add a new Admin-user
 cd cms
 bin/cake add_admin
 ```
+This will also create and display a random Toke.
 
 #### Login with  Username and Password (in Web-GUI):
 
@@ -203,6 +204,7 @@ The implemented Policies are at `cms/src/Policy` .
     - Method: `GET`
     - Header: `Authorization: Token {token}`
 - add a user: http://localhost:8765/api/users/add.json
+    - Hint: Can not set a custom Token, because a random one will be created. This new Token will be present in the Rsponse.
     - Method: `POST`
     - Header: `Authorization: Token {token}`
     - Header: `Content-Type: application/json`
@@ -228,6 +230,7 @@ The implemented Policies are at `cms/src/Policy` .
     - Header: `Content-Type: application/json`
     - Example-Body: `{"password":"password123"}`
 - edit a token: http://localhost:8765/api/users/edit-token/{id}.json
+    - Hint: Can not set a custom Token, because a random one will be created. This new Token will be present in the Rsponse.
     - URL-parameter: `{id}` is the ID of the user
     - Method: `PUT`
     - Header: `Authorization: Token {token}`
