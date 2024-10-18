@@ -72,6 +72,16 @@ class UsersFixture extends TestFixture
             'created'           => '2024-10-14 14:23:23',
             'modified'          => '2024-10-14 14:23:23',
         ],
+        'other-user' => [
+            'id'                => 7,
+            'password'          => 'other-user-password-123',
+            'token'             => 'other-user-token-123',
+            'isAdmin'           => false,
+            'canViewApplicants' => false,
+            'canEditApplicants' => false,
+            'created'           => '2024-10-14 14:23:23',
+            'modified'          => '2024-10-14 14:23:23',
+        ],
     ];
 
     /**
