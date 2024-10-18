@@ -165,10 +165,82 @@ class ApplicantsControllerTest extends ApiIntegrationTestCase
                 'email'     => $applicant['email'],
 
                 'created'   => $responseData['applicant']['created'],
-                'modified'  => $responseData['applicant']['created'],
+                'modified'  => $responseData['applicant']['modified'],
             ],
             'status'   => 'OK',
             'message'  => 'The applicant has been saved.',
+        ];
+
+        $this->assertEquals($expected, $responseData);
+    }
+
+    public function assertUserCanNotEdit(?string $username): void
+    {
+        $applicant = [
+            'title' => 'dr.',
+            'firstName' => 'Jane',
+            'lastName' => 'Doe',
+            'email' => 'jane-doe@bla.com',
+        ];
+
+        $this->assertUserCanNotRequestWithMethodPut($username, '/api/applicants/1.json', $applicant);
+
+        //TODO: check response
+        // the following throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
+        // $this->assertResponseNotContains($applicant['title']);
+        // $this->assertResponseNotContains($applicant['firstName']);
+        // $this->assertResponseNotContains($applicant['lastName']);
+        // $this->assertResponseNotContains($applicant['email']);
+    }
+
+    public function assertUserCanEdit(?string $username): void
+    {
+        $applicant = [
+            'title' => 'dr.',
+            'firstName' => 'Jane',
+            'lastName' => 'Doe',
+            'email' => 'jane-doe@bla.com',
+        ];
+
+        $this->assertUserCanRequestWithMethodPut($username, '/api/applicants/1.json', $applicant);
+        
+        $responseData = json_decode((string)$this->_response->getBody(), true);
+
+        $expected = [
+            'applicant' => [
+                'id'        => $responseData['applicant']['id'],
+
+                'title'     => $applicant['title'],
+                'firstName' => $applicant['firstName'],
+                'lastName'  => $applicant['lastName'],
+                'email'     => $applicant['email'],
+
+                'created'   => $responseData['applicant']['created'],
+                'modified'  => $responseData['applicant']['modified'],
+            ],
+            'status'   => 'OK',
+            'message'  => 'The applicant has been saved.',
+        ];
+
+        $this->assertEquals($expected, $responseData);
+    }
+
+    public function assertUserCanNotDelete(?string $username): void
+    {
+        $this->assertUserCanNotRequestWithMethodDelete($username, '/api/applicants/2.json');
+        
+        //TODO: check response
+    }
+
+    public function assertUserCanDelete(?string $username): void
+    {
+        $this->assertUserCanRequestWithMethodDelete($username, '/api/applicants/2.json');
+        
+        $responseData = json_decode((string)$this->_response->getBody(), true);
+
+        $expected = [
+            'status'   => 'OK',
+            'message'  => 'The applicant has been deleted.',
         ];
 
         $this->assertEquals($expected, $responseData);
@@ -191,6 +263,16 @@ class ApplicantsControllerTest extends ApiIntegrationTestCase
         $this->assertUserCanNotAdd(null);
     }
 
+    public function testUnauthorisedUserCanNotEdit(): void
+    {
+        $this->assertUserCanNotEdit(null);
+    }
+
+    public function testUnauthorisedUserCanNotDelete(): void
+    {
+        $this->assertUserCanNotDelete(null);
+    }
+
 
     
     public function testAdminCanIndex(): void
@@ -206,6 +288,16 @@ class ApplicantsControllerTest extends ApiIntegrationTestCase
     public function testAdminCanAdd(): void
     {
         $this->assertUserCanAdd('admin');
+    }
+
+    public function testAdminCanEdit(): void
+    {
+        $this->assertUserCanEdit('admin');
+    }
+
+    public function testAdminCanDelete(): void
+    {
+        $this->assertUserCanDelete('admin');
     }
 
 
@@ -225,6 +317,16 @@ class ApplicantsControllerTest extends ApiIntegrationTestCase
         $this->assertUserCanNotAdd('user-with-noPermissions');
     }
 
+    public function testUserWithNoPermissionsCanNotEdit(): void
+    {
+        $this->assertUserCanNotEdit('user-with-noPermissions');
+    }
+
+    public function testUserWithNoPermissionsCanNotDelete(): void
+    {
+        $this->assertUserCanNotDelete('user-with-noPermissions');
+    }
+
 
     
     public function testUserWithWithCanViewApplicantsPermissionCanIndex(): void
@@ -240,6 +342,16 @@ class ApplicantsControllerTest extends ApiIntegrationTestCase
     public function testUserWithWithCanViewApplicantsPermissionCanNotAdd(): void
     {
         $this->assertUserCanNotAdd('user-with-canViewApplicants');
+    }
+
+    public function testUserWithWithCanViewApplicantsPermissionCanNotEdit(): void
+    {
+        $this->assertUserCanNotEdit('user-with-canViewApplicants');
+    }
+
+    public function testUserWithWithCanViewApplicantsPermissionCanNotDelete(): void
+    {
+        $this->assertUserCanNotDelete('user-with-canViewApplicants');
     }
 
 
@@ -259,6 +371,16 @@ class ApplicantsControllerTest extends ApiIntegrationTestCase
         $this->assertUserCanAdd('user-with-canViewApplicants-and-canEditApplicants');
     }
 
+    public function testUserWithWithCanViewApplicantsAndCanEditApplicantsPermissionCanEdit(): void
+    {
+        $this->assertUserCanEdit('user-with-canViewApplicants-and-canEditApplicants');
+    }
+
+    public function testUserWithWithCanViewApplicantsAndCanEditApplicantsPermissionCanDelete(): void
+    {
+        $this->assertUserCanDelete('user-with-canViewApplicants-and-canEditApplicants');
+    }
+
 
     
     public function testUserWithWithCanEditApplicantsPermissionCanNotIndex(): void
@@ -274,5 +396,15 @@ class ApplicantsControllerTest extends ApiIntegrationTestCase
     public function testUserWithWithCanEditApplicantsPermissionCanNotAdd(): void
     {
         $this->assertUserCanNotAdd('user-with-canEditApplicants');
+    }
+
+    public function testUserWithWithCanEditApplicantsPermissionCanNotEdit(): void
+    {
+        $this->assertUserCanNotEdit('user-with-canEditApplicants');
+    }
+
+    public function testUserWithWithCanEditApplicantsPermissionCanNotDelete(): void
+    {
+        $this->assertUserCanNotDelete('user-with-canEditApplicants');
     }
 }

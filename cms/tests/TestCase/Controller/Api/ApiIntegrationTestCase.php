@@ -101,4 +101,66 @@ class ApiIntegrationTestCase extends TestCase
         // $this->assertResponseSuccess();
         $this->assertResponseCode(200);
     }
+
+    public function assertUserCanNotRequestWithMethodPut(?string $username, string $path, array $data): void
+    {
+        $this->setTokenForUsername($username);
+
+        $this->setContentTypeJson();
+
+        $this->put(
+            $path,
+            json_encode($data, JSON_PRETTY_PRINT),
+        );
+
+        if ($username === null) {
+            $this->assertResponseCode(401);
+        }
+        else {
+            $this->assertResponseCode(403);
+        }
+    }
+
+    public function assertUserCanRequestWithMethodPut(?string $username, string $path, array $data): void
+    {
+        $this->setTokenForUsername($username);
+
+        $this->setContentTypeJson();
+
+        $this->put(
+            $path,
+            json_encode($data, JSON_PRETTY_PRINT),
+        );
+
+        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
+        // $this->assertResponseSuccess();
+        $this->assertResponseCode(200);
+    }
+
+    public function assertUserCanNotRequestWithMethodDelete(?string $username, string $path): void
+    {
+        $this->setTokenForUsername($username);
+
+        $this->delete($path);
+        
+        if ($username === null) {
+            $this->assertResponseCode(401);
+        }
+        else {
+            $this->assertResponseCode(403);
+        }
+
+        //TODO: check response
+    }
+
+    public function assertUserCanRequestWithMethodDelete(?string $username, string $path): void
+    {
+        $this->setTokenForUsername($username);
+
+        $this->delete($path);
+
+        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
+        // $this->assertResponseSuccess();
+        $this->assertResponseCode(200);
+    }
 }
