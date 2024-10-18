@@ -33,7 +33,7 @@ The main documentation for CakePHP 5 can be read [here](https://book.cakephp.org
         - ✅ User
     - Integration tests
         - 📜 General
-        - 📜 Applicant
+        - 🛠 Applicant
         - 🛠 User
 - API documentation:
     - 📜 Implementation with [Swagger](https://swagger.io/) (with pluging [alt3/cakephp-swagger](https://github.com/alt3/cakephp-swagger) ?)
