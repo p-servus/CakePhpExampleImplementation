@@ -72,6 +72,18 @@ class ApplicantPolicy implements BeforePolicyInterface
         return $this->_canView($user);
     }
 
+    /**
+     * Check if $user can index Applicants
+     *
+     * @param \Authorization\IdentityInterface $user The user.
+     * @param \App\Model\Entity\Applicant $resource
+     * @return bool
+     */
+    public function canIndex(IdentityInterface1&IdentityInterface2 $user, Applicant $resource)
+    {
+        return $this->_canView($user);
+    }
+
     //TODO: dely index action: the following code does not work
     // /**
     //  * Check if $user can index Applicant

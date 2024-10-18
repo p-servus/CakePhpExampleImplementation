@@ -108,6 +108,18 @@ class UserPolicy implements BeforePolicyInterface
         return $this->isMe($user, $resource);
     }
 
+    /**
+     * Check if $user can index User
+     *
+     * @param \Authorization\IdentityInterface $user The user.
+     * @param \App\Model\Entity\User $resource
+     * @return bool
+     */
+    public function canIndex(IdentityInterface1&IdentityInterface2 $user, User $resource)
+    {
+        return $this->isMe($user, $resource);
+    }
+
     protected function isMe(IdentityInterface1&IdentityInterface2 $user, User $resource)
     {
         return $resource->id === $user->getIdentifier();
