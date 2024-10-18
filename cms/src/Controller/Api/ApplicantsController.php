@@ -39,6 +39,7 @@ class ApplicantsController extends AppController
      */
     public function index()
     {
+        //TODO: how to deny a hole action for users with no permissions
         $this->Authorization->skipAuthorization();
 
         $query = $this->Applicants->find('all');
@@ -77,9 +78,9 @@ class ApplicantsController extends AppController
     {
         $this->request->allowMethod(['post', 'put']);
         
-        $this->Authorization->skipAuthorization();
-        
         $applicant = $this->Applicants->newEntity($this->request->getData());
+
+        $this->Authorization->authorize($applicant);
 
         if ($this->Applicants->save($applicant)) {
             $status  = 'OK';

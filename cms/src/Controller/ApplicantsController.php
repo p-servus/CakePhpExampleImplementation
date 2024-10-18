@@ -30,6 +30,7 @@ class ApplicantsController extends AppController
      */
     public function index()
     {
+        //TODO: how to deny a hole action for users with no permissions
         $this->Authorization->skipAuthorization();
         $query = $this->Applicants->find();
         $applicants = $this->paginate($query);

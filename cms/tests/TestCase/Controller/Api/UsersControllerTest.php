@@ -1,46 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Test\TestCase\Controller;
+namespace App\Test\TestCase\Api\Controller;
 
 use App\Controller\UsersController;
-use App\Test\Fixture\UsersFixture;
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\TestSuite\TestCase;
+use App\Test\TestCase\Controller\Api\ApiIntegrationTestCase;
 
 /**
- * App\Controller\UsersController Test Case
+ * App\Controller\Api\UsersController Test Case
  *
- * @uses \App\Controller\UsersController
+ * @uses \App\Controller\Api\UsersController
  */
-class UsersControllerTest extends TestCase
+class UsersControllerTest extends ApiIntegrationTestCase
 {
-    use IntegrationTestTrait;
-
-    protected function setToken(string $token) {
-        $this->configRequest([
-            'headers' => [
-                'Authorization' => 'Token '.$token,
-            ],
-        ]);
-    }
-
-    protected function setTokenForUsername(?string $username) {
-        if ($username === null) {
-            return;
-        }
-
-        $this->setToken(UsersFixture::$userDataList[$username]['token']);
-    }
-
-    protected function setContentTypeJson() {
-        $this->configRequest([
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
-        ]);
-    }
-
     /**
      * Fixtures
      *
@@ -109,47 +81,23 @@ class UsersControllerTest extends TestCase
 
     public function assertUserCanNotIndex(?string $username): void
     {
-        $this->setTokenForUsername($username);
-
-        $this->get('/api/users.json');
-        
-        if ($username === null) {
-            $this->assertResponseCode(401);
-        }
-        else {
-            $this->assertResponseCode(403);
-        }
+        $this->assertUserCanNotRequestWithMethodGet($username, '/api/users.json');
 
         //TODO: check response
     }
 
     public function assertUserCanIndex(?string $username): void
     {
-        $this->setTokenForUsername($username);
+        $this->assertUserCanRequestWithMethodGet($username, '/api/users.json');
 
-        $this->get('/api/users.json');
-
-        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
-        // $this->assertResponseSuccess();
-        $this->assertResponseCode(200);
-
-        $responseData = json_decode((string)$this->_response->getBody(), true);
-        
+        //TODO: check response
+        // $responseData = json_decode((string)$this->_response->getBody(), true);
         $this->assertResponseContains('a-verry-special-username');
     }
 
     public function assertUserCanNotView(?string $username): void
     {
-        $this->setTokenForUsername($username);
-
-        $this->get('/api/users/6.json');
-        
-        if ($username === null) {
-            $this->assertResponseCode(401);
-        }
-        else {
-            $this->assertResponseCode(403);
-        }
+        $this->assertUserCanNotRequestWithMethodGet($username, '/api/users/6.json');
         
         //TODO: check response
         // the following throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"  
@@ -158,77 +106,52 @@ class UsersControllerTest extends TestCase
 
     public function assertUserCanView(?string $username): void
     {
-        $this->setTokenForUsername($username);
-
-        $this->get('/api/users/6.json');
+        $this->assertUserCanRequestWithMethodGet($username, '/api/users/6.json');
         
-        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
-        // $this->assertResponseSuccess();
-        $this->assertResponseCode(200);
-        
+        //TODO: check response
+        // $responseData = json_decode((string)$this->_response->getBody(), true);
         $this->assertResponseContains('a-verry-special-username');
     }
 
     public function assertUserCanNotAdd(?string $username): void
     {
-        $this->setTokenForUsername($username);
-
         $user = [
             'username' => 'jane-doe',
             'password' => 'password123',
         ];
 
-        $this->setContentTypeJson();
-
-        $this->post(
-            '/api/users.json',
-            json_encode($user, JSON_PRETTY_PRINT),
-        );
-
-        if ($username === null) {
-            $this->assertResponseCode(401);
-        }
-        else {
-            $this->assertResponseCode(403);
-        }
+        $this->assertUserCanNotRequestWithMethodPost($username, '/api/users.json', $user);
 
         //TODO: check response
+        // the following throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
+        // $this->assertResponseNotContains($user['username']);
     }
 
     public function assertUserCanAdd(?string $username): void
     {
-        $this->setTokenForUsername($username);
-
         $user = [
             'username' => 'jane-doe',
             'password' => 'password123',
         ];
 
-        $this->setContentTypeJson();
-
-        $this->post(
-            '/api/users.json',
-            json_encode($user, JSON_PRETTY_PRINT),
-        );
+        $this->assertUserCanRequestWithMethodPost($username, '/api/users.json', $user);
         
         $responseData = json_decode((string)$this->_response->getBody(), true);
 
         $expected = [
             'user' => [
-                'username' => 'jane-doe',
-                'created' => $responseData['user']['created'],
+                'id'       => $responseData['user']['id'],
+
+                'username' => $user['username'],
+
+                'created'  => $responseData['user']['created'],
                 'modified' => $responseData['user']['created'],
-                'id' => $responseData['user']['id'],
             ],
             'newToken' => $responseData['newToken'],
-            'hint' => 'Please store this token in a safe location!!! Because of security reasons, only a hash of it will be stored here! If you lost the token, you have to create a new one!',
-            'status' => 'OK',
-            'message' => 'The user has been saved.',
+            'hint'     => 'Please store this token in a safe location!!! Because of security reasons, only a hash of it will be stored here! If you lost the token, you have to create a new one!',
+            'status'   => 'OK',
+            'message'  => 'The user has been saved.',
         ];
-
-        // with unauthorised user assertResponseSuccess() throws Exception: Possibly related to `Authentication\Authenticator\UnauthenticatedException`: "Authentication is required to continue"
-        // $this->assertResponseSuccess();
-        $this->assertResponseCode(200);
 
         $this->assertEquals($expected, $responseData);
     }
@@ -269,9 +192,9 @@ class UsersControllerTest extends TestCase
 
 
     
-    public function testUserWithNoPermissionsCanIndex(): void
+    public function testUserWithNoPermissionsCanNotIndex(): void
     {
-        $this->assertUserCanIndex('user-with-noPermissions');
+        $this->assertUserCanNotIndex('user-with-noPermissions');
     }
 
     public function testUserWithNoPermissionsCanNotView(): void

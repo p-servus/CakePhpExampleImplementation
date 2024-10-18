@@ -322,7 +322,7 @@ vendor/bin/phpunit --testdox {otional-directory}
     - ✅ User
 - Integration tests
     - 📜 General
-    - 📜 Applicant
+    - 🛠 Applicant
     - 🛠 User
 
 To run all tests:

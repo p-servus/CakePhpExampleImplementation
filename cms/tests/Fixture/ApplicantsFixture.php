@@ -20,10 +20,19 @@ class ApplicantsFixture extends TestFixture
         $this->records = [
             [
                 'id' => 1,
-                'title' => 'Lorem ipsum dolor sit amet',
-                'firstName' => 'Lorem ipsum dolor sit amet',
-                'lastName' => 'Lorem ipsum dolor sit amet',
-                'email' => 'Lorem ipsum dolor sit amet',
+                'title' => 'dr.',
+                'firstName' => 'Neo',
+                'lastName' => 'Hacker',
+                'email' => 'neo-hacker@bla.com',
+                'created' => '2024-10-16 14:18:15',
+                'modified' => '2024-10-16 14:18:15',
+            ],
+            [
+                'id' => 2,
+                'title' => 'a-very-special-title',
+                'firstName' => 'a-very-special-firstName',
+                'lastName' => 'a-very-special-lastName',
+                'email' => 'a-very-special-email@bla.com',
                 'created' => '2024-10-16 14:18:15',
                 'modified' => '2024-10-16 14:18:15',
             ],
